@@ -1,1 +1,1 @@
-# ctf_writeups
+#CTF_WRITEUPS
