@@ -39,7 +39,7 @@ Install borg and use `borg list` to detect the archive folder and `borg extract:
 
 After that acces the machine using ssh alex:S3cretP@s3 get in and we have user.txt that cotain the flag1 `flag{1_hop3_y0u_ke3p_th3_arch1v3s_saf3}`
 ![img](CTF_img/THM_Cyborg_4.png)
-**3 What is the root.txt flag? flag2**
+**4 What is the root.txt flag? flag2**
 In the shell we use `sudo -l` t list what command we can run as root and we have `(ALL : ALL) NOPASSWD: /etc/mp3backups/backup.sh`
 ![img](CTF_img/THM_Cyborg_5.png)
 After read the script there is speacial code in that
