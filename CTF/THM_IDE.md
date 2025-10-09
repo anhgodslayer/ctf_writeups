@@ -13,7 +13,7 @@ Artifact Files:
 Using `rustscan`  to scan port on target machine. Those open ports are 21,22,80,62337.
 
 ![img](CTF_img/THM_IDE_1.png)
-I use ` dirsearch <IP>' to find hidden url of the website and it have  nothing so accces the web through port 62337 an i get login form
+I use ` dirsearch <IP>' to find hidden url of the website and it have  nothing so accces the web through port 62337 and i get login form
 
 ![img](CTF_img/THM_IDE_2.png)
 Access ftp with anonymous account and found the file with this content
