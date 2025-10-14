@@ -15,7 +15,7 @@ Using `rustscan`  to scan port on target machine. Those open ports are 80.
 ![img](CTF_img/THM_Ignite_1.png)
 I use ` dirsearch <IP>' to find hidden url of the website have path /assets, robots.txt,
 
-![img](CTF_img/THM_Ignite_2.png) and ww see the version of that app using expoit in link below
+![img](CTF_img/THM_Ignite_2.png) and we see the version of that app using expoit in link below
 
 [exploit_link](https://www.exploit-db.com/exploits/50477)
 
