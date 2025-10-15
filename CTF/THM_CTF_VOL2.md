@@ -15,7 +15,7 @@ Using `rustscan`  to scan port on target machine. Those open ports are 22,80.
 ![img](CTF_img/THM_CTFVOL2/RECON_1.png)
 I use ` dirsearch <IP>' to find hidden url of the website have path /buttons, /robots.txt, /login,/static
 
-![img](CTF_img/THM_CTFVOL2/RECON_2.png) and ww see the version of that app using expoit in link below
+![img](CTF_img/THM_CTFVOL2/RECON_2.png)
 
 
 ** Easter 1 **
