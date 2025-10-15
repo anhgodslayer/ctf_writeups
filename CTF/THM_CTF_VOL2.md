@@ -177,6 +177,7 @@ Flag is : THM{l37'5_p4r7y_h4rd}
 Adjust cookie value to 1 to get the flag in mainpage
 ![img](CTF_img/THM_CTFVOL2/Flg7_1.png)
 
+Flag is: THM{w3lc0m3!_4nd_w3lc0m3}
 
 ** Easter 8 **
 
@@ -184,14 +185,67 @@ Adjust cookie value to 1 to get the flag in mainpage
 We adjust user agent to `Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.1 Mobile/15E148 Safari/604.1` in burpsuit to get the flag
 ![img](CTF_img/THM_CTFVOL2/Flg8_1.png)
 
+Flag is: THM{h3y_r1ch3r_wh3r3_15_my_k1dn3y}
 
 ** Easter 9 **
 
+We lick in the mainpage and only rederect is the link in the red button and so that we use `curl -L  http://10.10.80.120/ready` and get a flag
+```bash
+url -L  http://10.10.80.120/ready
+<html>
+        <head>
+                <title>You just press it</title>
+                <meta http-equiv="refresh" content="3;url=http:gone.php" />
+                <p style="text-align:center"><img src="bye.gif"/></p>
+                <!-- Too fast, too good, you can't catch me. I'm sanic Easter 9: THM{60nn4_60_f457} -->
+        </head>
+
+</html>
+
+```
+Flag is: THM{60nn4_60_f457
+
 ** Easter 10 **
+Use `curl -i -H    "Referer: tryhackme.com" http://10.10.80.120/free_sub/` and get a flag.
+```bash
+curl -i -H    "Referer: tryhackme.com" http://10.10.80.120/free_sub/
+HTTP/1.1 200 OK
+Date: Wed, 15 Oct 2025 16:02:33 GMT
+Server: Apache/2.2.22 (Ubuntu)
+X-Powered-By: PHP/5.3.10-1ubuntu3.26
+Vary: Accept-Encoding
+Content-Length: 118
+Content-Type: text/html
+
+Nah, there are no voucher here, I'm too poor to buy a new one XD. But i got an egg for you. Easter 10: THM{50rry_dud3}
+```
+
+Flag is : THM{50rry_dud3}
 
 ** Easter 11 **
+We change value of the food to egg to get flag
+![img](CTF_img/THM_CTFVOL2/Flg11_1.png)
+
+Flag is : THM{366y_b4k3y}
 
 ** Easter 12 **
+Go to network in dev and acces js file
+```bash
+function ahem()
+ {
+	str1 = '4561737465722031322069732054484d7b68316464336e5f6a355f66316c337d'
+	var hex  = str1.toString();
+	var str = '';
+	for (var n = 0; n < hex.length; n += 2) {
+		str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+	}
+	return str;
+ }
+
+````
+Decode the str1 and get the flag
+
+Flag is :  THM{h1dd3n_j5_f1l3}
 
 ** Easter 13 **
 
@@ -201,13 +255,74 @@ Flag is `THM{1_c4n'7_b3l13v3_17}`
 
 ** Easter 14 **
 
+We have the flag 14 in html in mainpage it encode png to base64 reverse it and we have img
+![img](CTF_img/THM_CTFVOL2/Flg14_1.png)
+
+Flag is :THM{d1r3c7_3mb3d}
+
 ** Easter 15 **
+Send string of all aphabet `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+` and compare to the gint and we get 'GameOver' send it to form and get a flag.
+Flag is THM{ju57_4_64m3}
 
 ** Easter 16 **
+Using this `curl -X POST http://10.10.80.120/game2/ \
+     -d "button1=button1" \
+     -d "button2=button2" \
+     -d "button3=button3" \
+     -d "submit=submit"
+` to  press all button
+
+```bash
+curl -X POST http://10.10.80.120/game2/ \
+     -d "button1=button1" \
+     -d "button2=button2" \
+     -d "button3=button3" \
+     -d "submit=submit"
+
+<html>
+        <head>
+                <title>Game 2</title>
+                <h1>Press the button simultaneously</h1>
+        </head>
+        <body>
+
+        <form method="POST">
+                <input type="hidden" name="button1" value="button1">
+                <button name="submit" value="submit">Button 1</button>
+        </form>
+
+        <form method="POST">
+                <input type="hidden" name="button2" value="button2">
+                <button name="submit" value="submit">Button 2</button>
+        </form>
+
+        <form method="POST">
+                <input type="hidden" name="button3" value="button3">
+                <button name="submit" value="submit">Button 3</button>
+        </form>
+        Just temper the code and you are good to go. Easter 16: THM{73mp3r_7h3_h7ml}    </body>
+</html>
+```
+
+Flag is : THM{73mp3r_7h3_h7ml}
 
 ** Easter 17 **
+Decode the binaryn in main html page '100010101100001011100110111010001100101011100100010000000110001001101110011101000100000010101000100100001001101011110110110101000110101010111110110101000110101010111110110101100110011011100000101111101100100001100110110001100110000011001000011001101111101"`
+Flag is: THM{j5_j5_k3p_d3c0d3}
+
 
 ** Easter 18 **
+using
+```bash
+curl -H "egg: Yes "  http://10.10.80.120  > out1.txt
+cat out1.txt | grep THM
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 94407    0 94407    0     0  44278      0 --:--:--  0:00:02 --:--:-- 44280
+        That's it, you just need to say YESSSSSSSSSS. Easter 18: THM{70ny_r0ll_7h3_366} <img src="egg.gif"/><img src="egg.gif"/><img src="egg.gif"/><img src="egg.gif"/><img src="egg.gif"/>
+```
+Flag is : THM{70ny_r0ll_7h3_366}
 
 ** Easter 19 **
 
@@ -217,3 +332,15 @@ Base on `Easter 3` we saw a small img and have a flag covert it we have the flag
 
 
 ** Easter 20 **
+using
+```bash
+curl -i -X POST http://10.10.80.120/   --data "username=DesKel&password=heIsDumb" | grep THM
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0Busted: Hey, you found me, take this Easter 6: THM{l37'5_p4r7y_h4rd}
+100 94412    0 94379  100    33  47709     16  0:00:02  0:00:01  0:00:01 47706
+        Okay, you pass, Easter 20: THM{17_w45_m3_4ll_4l0n6}     <br><br><br>
+```
+
+Flag is : THM{l37'5_p4r7y_h4rd}
