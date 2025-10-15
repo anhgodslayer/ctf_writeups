@@ -352,4 +352,4 @@ curl -i -X POST http://10.10.80.120/   --data "username=DesKel&password=heIsDumb
         Okay, you pass, Easter 20: THM{17_w45_m3_4ll_4l0n6}     <br><br><br>
 ```
 
-Flag is : `THM{l37'5_p4r7y_h4rd}`
+Flag is : THM{17_w45_m3_4ll_4l0n6}
