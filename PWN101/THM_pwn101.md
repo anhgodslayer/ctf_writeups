@@ -208,4 +208,7 @@ We use integer overflow with this challenge is int 32 with max value went perfor
  ```
 ## Flag6
 Use can read [doc](https://owasp.org/www-community/attacks/Format_string_attack) about how to fully exploit this vul but in this chall the hardest part is brute force stack data (flag from 6 to 11 pointer)and uncode it by unhex and reverse hex and get the flag [exploit](CTF_exploit/THM_pwn101/pwn106.py)
-## Flag5
+## Flag7
+## Flag8
+## Flag9
+## Flag10
