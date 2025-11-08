@@ -440,3 +440,4 @@ Usig it to find libc version on [libc_check_link](https://libc.blukat.me/)
  Using [exploit](CTF_exploit/THM_pwn101/pwn109.py) and read it to know how to controll the address
 
 ## Flag10
+Using excev() method  follow exploit [exploit](CTF_exploit/THM_pwn101/pwn110.py)
